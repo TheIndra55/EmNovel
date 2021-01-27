@@ -1,0 +1,7 @@
+.vscode/
+build.ps1
+
+*.data
+*.wasm
+*.html
+*.js
