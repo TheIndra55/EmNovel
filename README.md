@@ -2,6 +2,8 @@
 
 A small WIP simple text-based story engine for Emscripten, runs in the browser by the power of WebAssembly and Emscripten.
 
+[Demo](https://theindra55.github.io/EmNovel/)
+
 ![image](https://user-images.githubusercontent.com/15322107/105924596-def88580-603e-11eb-9dfb-5c64cfa68cd8.png)
 
 # Credits
