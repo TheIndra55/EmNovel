@@ -1,7 +1,14 @@
 .vscode/
+.vs/
+bin/
+obj/
 build.ps1
 
 *.data
 *.wasm
 *.html
 *.js
+
+*.sln
+*.vcxproj
+*.vcxproj.user

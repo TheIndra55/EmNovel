@@ -3,7 +3,11 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+#ifndef _WIN32
 #include <emscripten.h>
+#else
+#include <Windows.h>
+#endif
 
 #include "engine.hpp"
 #include "game.hpp"
@@ -28,11 +32,17 @@ void mainloop()
                     room->m_currentLine--;
 
                     printf("no more rooms\n");
+
                     continue;
                 }
 
                 game->m_currentRoom++;
             }
+        }
+
+        if (event.type == SDL_QUIT)
+        {
+            engine->QuitGame();
         }
     }
 
@@ -49,7 +59,11 @@ void mainloop()
 
 #define GAME_DAT "data/game.dat"
 
+#ifndef _WIN32
 int main()
+#else
+INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
+#endif
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     TTF_Init();
@@ -66,7 +80,18 @@ int main()
 
     printf("game has %d rooms\n", game->m_data.numRooms);
 
+#ifndef _WIN32
     emscripten_set_main_loop(mainloop, -1, 1);
+#else
+    while (engine->IsRunning())
+    {
+        mainloop();
+
+        SDL_Delay(10);
+    }
+
+    engine->Destroy();
+#endif
 
     return 0;
 }

@@ -27,7 +27,7 @@ void DisplayGameElements()
 
     RenderContext_t context = engine->RenderContext();
 
-    SDL_Rect r = {0, 0, 960, 540};
+    SDL_Rect r = {0, 0, context.width, context.height};
     SDL_RenderCopy(context.renderer, texture.texture, NULL, &r);
 
     RenderLineText(context, room->GetCurrentLine());
@@ -61,7 +61,7 @@ void RenderLineText(RenderContext_t context, GameLine line)
     SDL_Rect text_rect = {(context.width / 2) - (text->w / 2), (500 - text->h), text->w, text->h};
     auto textTexture = SDL_CreateTextureFromSurface(context.renderer, text);
 
-    SDL_Rect r = {0, (500 - text->h) - 10, 960, text->h + 20};
+    SDL_Rect r = {0, (500 - text->h) - 10, context.width, text->h + 20};
     SDL_FreeSurface(text);
 
     SDL_RenderCopy(context.renderer, gTextBox.texture, NULL, &r);

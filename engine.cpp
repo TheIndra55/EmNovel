@@ -10,14 +10,13 @@
 
 void Engine::CreateRenderer(int width, int height)
 {
-    m_renderContext.width = width;
-    m_renderContext.height = height;
-
     m_renderContext.window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+    SDL_GL_GetDrawableSize(m_renderContext.window, &m_renderContext.width, &m_renderContext.height);
 
     m_renderContext.renderer = SDL_CreateRenderer(m_renderContext.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     m_renderContext.main_font = TTF_OpenFont("data/font.ttf", 28);
+    m_running = true;
 }
 
 RenderContext_t Engine::RenderContext()
@@ -104,4 +103,23 @@ void Engine::StopAudio()
 
     m_audioContext.playing = false;
     SDL_FreeWAV(m_audioContext.wavBuffer);
+}
+
+void Engine::QuitGame() noexcept
+{
+    m_running = false;
+}
+
+bool Engine::IsRunning() const noexcept
+{
+    return m_running;
+}
+
+void Engine::Destroy() noexcept
+{
+    StopAudio();
+
+    SDL_DestroyRenderer(m_renderContext.renderer);
+    SDL_DestroyWindow(m_renderContext.window);
+    TTF_CloseFont(m_renderContext.main_font);
 }

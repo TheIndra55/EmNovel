@@ -38,6 +38,11 @@ public:
     void PlayAudio(char* file);
     void StopAudio();
 
+    bool IsRunning() const noexcept;
+    void QuitGame() noexcept;
+
+    void Destroy() noexcept;
+
     RenderContext_t RenderContext();
 
 private:
@@ -48,6 +53,7 @@ private:
 
     SDL_AudioDeviceID m_currentAudioDevice;
 
+    bool m_running = false;
 public:
     static Engine* Instance()
     {
