@@ -12,3 +12,4 @@ build.ps1
 *.sln
 *.vcxproj
 *.vcxproj.user
+*.dat

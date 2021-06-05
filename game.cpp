@@ -67,6 +67,7 @@ void RenderLineText(RenderContext_t context, GameLine line)
     SDL_RenderCopy(context.renderer, gTextBox.texture, NULL, &r);
 
     SDL_RenderCopy(context.renderer, textTexture, NULL, &text_rect);
+    SDL_DestroyTexture(textTexture);
 }
 
 Room* Game::GetCurrentRoom()
@@ -76,14 +77,15 @@ Room* Game::GetCurrentRoom()
 
 void Game::ReadGameData(const char* path)
 {
-    FILE* f = fopen(path, "rb");
+    auto engine = Engine::Instance();
+    auto file = engine->OpenFile(path);
 
-    fread(&m_data, sizeof(GameData), 1, f);
+    file->read(file, &m_data, sizeof(GameData), 1);
 
     for(int i = 0; i < m_data.numRooms; i++)
     {
         GameRoom dataroom;
-        fread(&dataroom, sizeof(GameRoom), 1, f);
+        file->read(file, &dataroom, sizeof(GameRoom), 1);
 
         printf("Room %d, background = %s, numLines = %d\n", i, dataroom.background, dataroom.numLines);
         
@@ -91,7 +93,7 @@ void Game::ReadGameData(const char* path)
         for(int j = 0; j < dataroom.numLines; j++)
         {
             GameLine line;
-            fread(&line, sizeof(GameLine), 1, f);
+            file->read(file, &line, sizeof(GameLine), 1);
 
             room.AddLine(line);
         }

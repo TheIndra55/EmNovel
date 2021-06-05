@@ -9,7 +9,7 @@ project "EmNovel"
 	cppdialect "C++17"
 	links { "SDL2.lib", "SDL2_image.lib", "SDL2_ttf.lib" }
 	
-	files { "*.cpp", "*.hpp" }
+	files { "*.cpp", "*.hpp", "vendor/Archive/Archive/*.cpp" }
 	
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }

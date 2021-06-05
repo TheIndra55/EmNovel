@@ -3,10 +3,17 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_audio.h>
 
+#include <stdio.h>
+#include <sstream>
+
+#if _WIN32
+#include <Windows.h>
+#else
+#include <emscripten.h>
+#endif
+
 #include "engine.hpp"
 #include "util.hpp"
-
-#include <stdio.h>
 
 void Engine::CreateRenderer(int width, int height)
 {
@@ -15,8 +22,39 @@ void Engine::CreateRenderer(int width, int height)
 
     m_renderContext.renderer = SDL_CreateRenderer(m_renderContext.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    m_renderContext.main_font = TTF_OpenFont("data/font.ttf", 28);
+    auto font = OpenFile("data/font.ttf");
+    m_renderContext.main_font = TTF_OpenFontRW(font, 1, 28);
     m_running = true;
+}
+
+void Engine::OpenArchive()
+{
+    m_archive = new Archive("game.dat");
+}
+
+Archive* Engine::GetArchive() const noexcept
+{
+    return m_archive;
+}
+
+SDL_RWops* Engine::OpenFile(const char* path) const
+{
+    auto size = GetArchive()->GetFileSize(path);
+
+    // check if file exists
+    if (!size)
+    {
+        std::ostringstream err;
+        err << "Failed to open " << path;
+
+        FatalError(err.str());
+    }
+
+    // read file from archive
+    auto data = new char[size];
+    GetArchive()->ReadFile(path, data);
+
+    return SDL_RWFromMem(data, size);
 }
 
 RenderContext_t Engine::RenderContext()
@@ -31,10 +69,18 @@ Asset_t Engine::CreateTexture(const char* path)
     uint32_t hash = jenkins_one_at_a_time_hash(path, strlen(path));
     Asset_t asset;
 
-    SDL_Surface* image = IMG_Load(path);
-    if(image == NULL)
+    // read file from archive
+    auto file = OpenFile(path);
+
+    // load image
+    SDL_Surface* image = IMG_Load_RW(file, 1);
+
+    if(image == nullptr)
     {
-        printf("Failed to load texture %s: %s\n", path, SDL_GetError());
+        std::ostringstream err;
+        err << "Failed to load texture " << path << " " << SDL_GetError();
+
+        FatalError(err.str());
     }
 
     asset.texture = SDL_CreateTextureFromSurface(m_renderContext.renderer, image);
@@ -79,7 +125,8 @@ void Engine::PlayAudio(char* file)
     printf("%s\n", file);
 
     // TODO look into SDL_Mixer or maybe sound compression since nobody likes 14mb sounds
-    SDL_LoadWAV(file, &wavSpec, &m_audioContext.wavBuffer, &m_audioContext.wavLength);
+    auto audio = OpenFile(file);
+    SDL_LoadWAV_RW(audio, 1, &wavSpec, &m_audioContext.wavBuffer, &m_audioContext.wavLength);
 
     if(!m_currentAudioDevice)
     {
@@ -119,7 +166,20 @@ void Engine::Destroy() noexcept
 {
     StopAudio();
 
+    m_archive->~Archive();
+
     SDL_DestroyRenderer(m_renderContext.renderer);
     SDL_DestroyWindow(m_renderContext.window);
     TTF_CloseFont(m_renderContext.main_font);
+}
+
+void Engine::FatalError(std::string err) const
+{
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error", err.c_str(), m_renderContext.window);
+
+#if _WIN32
+    ExitProcess(1);
+#else
+    emscripten_force_exit(1);
+#endif
 }

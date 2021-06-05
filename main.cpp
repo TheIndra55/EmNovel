@@ -69,6 +69,16 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     TTF_Init();
 
     Engine* engine = Engine::Instance();
+
+    try
+    {
+        engine->OpenArchive();
+    }
+    catch (std::exception& e)
+    {
+        engine->FatalError("Failed to open game archive game.dat");
+    }
+
     engine->CreateRenderer(960, 540);
 
     gTextBox = engine->CreateTexture("data/textbox.png");

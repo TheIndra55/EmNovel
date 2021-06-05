@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include "vendor/Archive/Archive/archive.hpp"
 
 struct RenderContext_t
 {
@@ -30,6 +31,10 @@ class Engine
 public:
     void CreateRenderer(int width, int height);
 
+    void OpenArchive();
+    Archive* GetArchive() const noexcept;
+    SDL_RWops* OpenFile(const char* path) const;
+
     Asset_t CreateTexture(const char* path);
     void DestroyTexture(const char* path);
     void DestroyTexture(uint32_t key);
@@ -43,6 +48,8 @@ public:
 
     void Destroy() noexcept;
 
+    void FatalError(std::string err) const;
+
     RenderContext_t RenderContext();
 
 private:
@@ -54,6 +61,8 @@ private:
     SDL_AudioDeviceID m_currentAudioDevice;
 
     bool m_running = false;
+
+    Archive* m_archive;
 public:
     static Engine* Instance()
     {

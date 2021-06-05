@@ -1,0 +1,3 @@
+[submodule "vendor/Archive"]
+	path = vendor/Archive
+	url = https://github.com/TheIndra55/Archive
